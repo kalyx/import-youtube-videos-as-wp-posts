@@ -54,15 +54,20 @@ add_action("wp_ajax_nopriv_yt_to_posts_getAllPostSlug", "yt_to_posts_getAllPostS
 
 function yt_to_posts_getAllPostSlug() { // Returns an array of all Youtube ID (to check dupes)
 
-  $args = array( 'posts_per_page' => -1);
-  $posts = get_posts($args);
-  $ids = array();
-  foreach ($posts as $post) {
-    if($post->yt_id != ""){
-      $ids[] = $post->yt_id;
-    }
-      
-  }
+  $videos = get_posts(
+  	array(
+		'post_type' => 'any',
+		'numberposts' => -1,
+		'meta_query' => array(
+			array(
+				'key' => 'yt_id',
+				'compare' => 'EXISTS'
+			)
+		)
+	)
+  );
+
+  $ids = wp_list_pluck( $videos, 'yt_id' );
   echo json_encode($ids);
   die();
 }
